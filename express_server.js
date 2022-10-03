@@ -16,6 +16,14 @@ app.get("/urls", (req, res) => {
   const templateInfo = { urls: urlDatabase };
   res.render("urls_index", templateInfo);
 });
+app.get("/urls/:id", (req, res) => {
+  let { id } = req.params;
+  let templateInfo = {
+    id: id,
+    longURL: urlDatabase[id],
+  };
+  res.render("urls_show", templateInfo);
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
