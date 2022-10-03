@@ -75,6 +75,14 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateInfo);
 });
+app.post("/urls/:id/delete", (req, res) => {
+  console.log(urlDatabase);
+  const id = req.params.id;
+  console.log(id);
+  delete urlDatabase[id];
+  console.log(urlDatabase);
+  res.redirect("/urls/");
+});
 app.get("/u/:id", (req, res) => {
   if (urlDatabase[req.params.id]) {
     res.statusCode = 300;
