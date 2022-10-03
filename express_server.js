@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const { request } = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -118,6 +119,18 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls/");
+});
+app.get("/register", (req, res) => {
+  let username = req.cookies["username"];
+  let templateInfo = {
+    username,
+  };
+  res.render("register_index", templateInfo);
+});
+
+app.post("/register", (req, res) => {
+  console.log(req.body);
+  res.end("posted at /register");
 });
 
 app.listen(PORT, () => {
