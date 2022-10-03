@@ -60,11 +60,11 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let randomString = generateRandomString();
+
   console.log(req.body); // Log the POST request body to the console
   urlDatabase[randomString] = "https://" + req.body.longURL;
+  res.statusCode = 300;
   res.redirect(`/urls/${randomString}`);
-  // urlDatabase[req.body.longUrl] = longURL;
-  // Respond with 'Ok' (we will replace this)
 });
 app.get("/urls/:id", (req, res) => {
   let { id } = req.params;
@@ -76,6 +76,7 @@ app.get("/urls/:id", (req, res) => {
 });
 app.get("/u/:id", (req, res) => {
   if (urlDatabase[req.params.id]) {
+    res.statusCode = 300;
     res.redirect(`${urlDatabase[req.params.id]}`);
   } else {
     res.status(404);
