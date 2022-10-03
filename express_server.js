@@ -10,6 +10,43 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+function generateRandomString() {
+  let alphabet = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z",
+  ];
+  let string = "";
+  for (let i = 0; i < 6; i++) {
+    let random = Math.floor(Math.random() * 26);
+    string += alphabet[random];
+  }
+  return string;
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -20,6 +57,15 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+app.post("/urls", (req, res) => {
+  let randomString = generateRandomString();
+  console.log(req.body); // Log the POST request body to the console
+  urlDatabase[randomString] = "https://" + req.body.longURL;
+  res.redirect(`/urls/${randomString}`);
+  // urlDatabase[req.body.longUrl] = longURL;
+  // Respond with 'Ok' (we will replace this)
+});
 app.get("/urls/:id", (req, res) => {
   let { id } = req.params;
   let templateInfo = {
@@ -28,10 +74,15 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateInfo);
 });
+app.get("/u/:id", (req, res) => {
+  if (urlDatabase[req.params.id]) {
+    res.redirect(`${urlDatabase[req.params.id]}`);
+  } else {
+    res.status(404);
+    res.send("404 page not found");
+  }
 
-app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  // res.redirect(urlDatabase[req.params.id]);
 });
 
 // app.get("/urls.json", (req, res) => {
