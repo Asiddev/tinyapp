@@ -76,12 +76,22 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateInfo);
 });
 app.post("/urls/:id/delete", (req, res) => {
-  console.log(urlDatabase);
   const id = req.params.id;
-  console.log(id);
+  // console.log(id);
   delete urlDatabase[id];
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   res.redirect("/urls/");
+});
+app.post("/urls/:id/update", (req, res) => {
+  const id = req.params.id;
+  const newData = req.body.new_data;
+  if (id) {
+    urlDatabase[id] = "http://" + newData;
+    res.redirect("/urls/");
+  } else {
+    res.statusCode = 404;
+    res.send("Id not found");
+  }
 });
 app.get("/u/:id", (req, res) => {
   if (urlDatabase[req.params.id]) {
