@@ -19,6 +19,7 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       </div>
+
       <% if (userId) { %>
         <div style=" display: flex;">
         <p style="margin-right: 10px;"> Logged in as : <%= users[userId].email %> </p>
@@ -26,11 +27,11 @@
         <button type="submit" class="btn btn-primary">Logout</button>
       </form>
     </div>
-      <%} else { %>
-      <form method="POST" action="/login">
-        <input type="text" name="username" placeholder="Enter Username" />
-        <button type="submit" class="btn btn-primary">Login</button>
-      </form>
+      <% } else { %>
+        <div style="width: 250px; display: flex; justify-content: space-evenly;">
+      <a href="/register"> Register</a>
+      <a href="/login"> Login</a>
+    </div>
       <% } %>
     </div>
   </nav>

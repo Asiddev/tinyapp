@@ -125,9 +125,23 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
-app.post("/login", (req, res) => {
+app.get("/login", (req, res) => {
+  console.log(req.body);
+  let userId = req.cookies["user_id"];
+  let templateInfo = {
+    users,
+    userId,
+  };
+
   // res.cookie("username", req.body.username);
-  res.redirect("/urls/");
+  // res.redirect("/urls/");
+  res.render("login_index", templateInfo);
+});
+
+app.post("/login", (req, res) => {
+  console.log(req.body);
+  // res.cookie("username", req.body.username);
+  // res.redirect("/urls/");
 });
 
 app.post("/logout", (req, res) => {
@@ -156,7 +170,7 @@ app.post("/register", (req, res) => {
     // }
     if (getUserByEmail(req.body.email, users)) {
       res.statusCode = 400;
-      res.end("email already in use");
+      res.end("Email already in use");
     }
     let id = generateRandomString();
     let email = req.body.email;
@@ -168,8 +182,6 @@ app.post("/register", (req, res) => {
       password,
     };
     res.redirect("/urls/");
-
-    console.log(users);
   } else {
     res.statusCode = 400;
     res.end("Please enter a valid email and password");
