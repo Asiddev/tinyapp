@@ -61,9 +61,9 @@ function generateRandomString() {
   return string;
 }
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
+app.get("/", (req, res) => {
+  res.redirect("/login");
+});
 app.get("/urls", (req, res) => {
   let userId = req.cookies["user_id"];
   // let user = users[userId];
@@ -133,21 +133,40 @@ app.get("/login", (req, res) => {
     userId,
   };
 
-  // res.cookie("username", req.body.username);
   // res.redirect("/urls/");
   res.render("login_index", templateInfo);
 });
 
 app.post("/login", (req, res) => {
   console.log(req.body);
-  // res.cookie("username", req.body.username);
-  // res.redirect("/urls/");
+  let email = req.body.email;
+  let password = req.body.password;
+  //do we have a user with that email?
+  let user = getUserByEmail(email, users);
+
+  //yes
+  if (user) {
+    //Is his password the same?
+    if (user.password === password) {
+      res.cookie("user_id", user.id);
+      res.redirect("/urls/");
+    } else {
+      res.statusCode = 403;
+      res.end("wrong password");
+    }
+    //no
+  } else {
+    res.statusCode = 403;
+    res.end("No user with that email");
+  }
 });
 
 app.post("/logout", (req, res) => {
+  //clearCookie but would be better if we can delete the entire cookie not just value
   res.clearCookie("user_id");
-  res.redirect("/register/");
+  res.redirect("/login/");
 });
+
 app.get("/register", (req, res) => {
   let userId = req.cookies["user_id"];
   let templateInfo = {
@@ -158,7 +177,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  console.log("hi");
+  //check password and email exist
   if (req.body.email && req.body.password) {
     console.log("okay email and password exist");
 
@@ -168,10 +187,13 @@ app.post("/register", (req, res) => {
     //     res.end("email already in use");
     //   }
     // }
+
+    //check if user with email exists
     if (getUserByEmail(req.body.email, users)) {
       res.statusCode = 400;
       res.end("Email already in use");
     }
+    //generate new user
     let id = generateRandomString();
     let email = req.body.email;
     let password = req.body.password;
