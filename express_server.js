@@ -1,7 +1,8 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
+const methodOverride = require("method-override");
+const morgan = require("morgan");
 const {
   getUserByEmail,
   generateRandomString,
@@ -11,27 +12,21 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+
+//Middlewares
+app.use(morgan("dev"));
+app.use(methodOverride("_method"));
+
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
 app.use(
   cookieSession({
     name: "session",
-    keys: [
-      /* secret keys */
-      "secret",
-    ],
-
-    // Cookie Options
+    keys: ["secret"], //not sure if this is correct?
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   })
 );
 
 const users = {};
-
-// const urlDatabase = {
-//   b2xVn2: "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com",
-// };
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -46,7 +41,7 @@ const urlDatabase = {
 // eslint-disable-next-line func-style
 
 app.get("/", (req, res) => {
-  res.redirect("/register");
+  res.redirect("/login");
 });
 
 app.get("/urls", (req, res) => {
@@ -55,7 +50,9 @@ app.get("/urls", (req, res) => {
   console.log(userId);
 
   if (!userId) {
-    res.send(`<h1> You must go register or login before going here</h1>`);
+    return res.send(
+      `<h1> You must go register or login before going here</h1>`
+    );
   }
   let userUrls = {};
   console.log(userUrls);
@@ -64,6 +61,7 @@ app.get("/urls", (req, res) => {
     urls: urlsForUser(userId, urlDatabase),
     users,
     userId,
+    urlDatabase,
   };
   res.render("urls_index", templateInfo);
 });
@@ -75,7 +73,8 @@ app.get("/urls/new", (req, res) => {
     const templateInfo = { users, userId };
     res.render("urls_new", templateInfo);
   } else {
-    res.send(`<h1>Sorry you need to be logged in to use this feature</h1>`);
+    // res.send(`<h1>Sorry you need to be logged in to use this feature</h1>`);
+    res.redirect("/login");
   }
 });
 
@@ -92,6 +91,8 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = {
     longURL: "https://" + req.body.longURL,
     userID: userId,
+    count: 0,
+    date: new Date().toLocaleString(),
   };
   res.statusCode = 300;
   res.redirect(`/urls/${id}`);
@@ -117,7 +118,8 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateInfo);
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id/delete", (req, res) => {
+  //if breaks.. was a post and form was ..... action="/urls/<%= id %>/delete"
   const id = req.params.id;
   let userId = req.session.user_id;
 
@@ -128,7 +130,8 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls/");
 });
 
-app.post("/urls/:id/update", (req, res) => {
+app.put("/urls/:id/update", (req, res) => {
+  //if breaks... was a post and a form was action="/urls/<%= id %>/update"
   const id = req.params.id;
   const newData = req.body.new_data;
   let userId = req.session.user_id;
@@ -137,7 +140,10 @@ app.post("/urls/:id/update", (req, res) => {
     res.send("You can only edit you own urls");
   }
   if (id) {
+    //stretch
     urlDatabase[id]["longURL"] = "http://" + newData;
+    urlDatabase[id]["count"] = 0;
+    urlDatabase[id]["date"] = new Date().toLocaleString();
     res.redirect("/urls/");
   } else {
     res.statusCode = 404;
@@ -147,11 +153,13 @@ app.post("/urls/:id/update", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   let userId = req.session.user_id;
+  let id = req.params.id;
+  urlDatabase[id].count++;
 
   if (!userId) {
     res.send(`<h1>Please log in</h1>`);
   }
-  let id = req.params.id;
+
   if (urlDatabase[id].userID !== userId) {
     res.send(`<h1>No shortned URL with that Id</h1>`);
   }
@@ -181,35 +189,32 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.body);
   let email = req.body.email;
   let password = req.body.password;
 
   //do we have a user with that email?
   let user = getUserByEmail(email, users);
+  let currentUser = users[user];
 
   //yes
   if (user) {
     //Is his password the same?
-    if (bcrypt.compareSync(req.body.password, user.hashedPassword)) {
-      // res.cookie("user_id", user.id);
+    if (bcrypt.compareSync(password, currentUser.hashedPassword)) {
       // eslint-disable-next-line camelcase
-      req.session.user_id = user.id;
+      req.session.user_id = currentUser.id;
       res.redirect("/urls/");
     } else {
       res.statusCode = 403;
-      res.end("wrong password");
+      res.send(`<h1>Wrong Password</h1>`);
     }
     //no
   } else {
     res.statusCode = 403;
-    res.end("No user with that email");
+    res.send(`<h1>No user with that email</h1>`);
   }
 });
 
 app.post("/logout", (req, res) => {
-  //clearCookie but would be better if we can delete the entire cookie not just value
-  // res.clearCookie("user_id");
   req.session = null;
   res.redirect("/login/");
 });
@@ -232,8 +237,6 @@ app.post("/register", (req, res) => {
 
   //check password and email exist
   if (req.body.email && req.body.password) {
-    console.log("okay email and password exist");
-
     //check if user with email exists
     if (getUserByEmail(req.body.email, users)) {
       res.statusCode = 400;

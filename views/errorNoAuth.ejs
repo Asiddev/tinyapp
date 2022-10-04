@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -8,35 +14,23 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <title>URL - TinyApp Example</title>
+    <title>TinyApp</title>
   </head>
-
   <body style="background-color: lightblue">
     <%- include('partials/_header') %>
-    <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">
-          Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
-        </p>
-        <p>
-          Please note that editing a url will reset the visitor count to : 0 and
-          change the date that it was created.
-        </p>
+
+    <div
+      style="
+        height: 70vh;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+      "
+    >
+      <div class="title" style="margin-bottom: 50px">
+        <h1 class="navbar-brand">400! Auth needed</h1>
       </div>
-      <form method="POST" action="/urls/<%= id %>/update?_method=PUT">
-        <input
-          type="text"
-          name="new_data"
-          id="updated"
-          placeholder="<%= longURL %>"
-        />
-        <button style="border: none; padding: 5px 10px" type="submit">
-          Edit
-        </button>
-      </form>
-      <div class="card-footer text-muted"></div>
     </div>
     <!-- Bootstrap JS -->
     <script

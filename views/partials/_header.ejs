@@ -22,12 +22,12 @@
 
       <% if (userId) { %>
         <div style=" display: flex;">
-        <p style="margin-right: 10px;"> Logged in as : <%= users[userId].email %> </p>
+        <p style="margin-right: 10px;"> Logged in as : <%= users[userId]?.email %> </p>
       <form method="POST" action="/logout">
         <button type="submit" class="btn btn-primary">Logout</button>
       </form>
     </div>
-      <% } else { %>
+      <% } else  { %>
         <div style="width: 250px; display: flex; justify-content: space-evenly;">
       <a href="/register"> Register</a>
       <a href="/login"> Login</a>
