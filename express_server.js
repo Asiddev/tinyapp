@@ -15,6 +15,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const getUserByEmail = (email, users) => {
+  for (let user in users) {
+    if (users[user]["email"] === email) {
+      return users[user];
+    }
+  }
+  return null;
+};
+
 function generateRandomString() {
   let alphabet = [
     "a",
@@ -135,19 +144,36 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let id = generateRandomString();
-  console.log(req.body);
-  let email = req.body.email;
-  let password = req.body.password;
-  res.cookie("user_id", id);
-  users[id] = {
-    id,
-    email,
-    password,
-  };
+  console.log("hi");
+  if (req.body.email && req.body.password) {
+    console.log("okay email and password exist");
 
-  res.redirect("/urls/");
-  console.log(users);
+    // for (let user in users) {
+    //   if (users[user]["email"] === req.body.email) {
+    //     res.statusCode = 400;
+    //     res.end("email already in use");
+    //   }
+    // }
+    if (getUserByEmail(req.body.email, users)) {
+      res.statusCode = 400;
+      res.end("email already in use");
+    }
+    let id = generateRandomString();
+    let email = req.body.email;
+    let password = req.body.password;
+    res.cookie("user_id", id);
+    users[id] = {
+      id,
+      email,
+      password,
+    };
+    res.redirect("/urls/");
+
+    console.log(users);
+  } else {
+    res.statusCode = 400;
+    res.end("Please enter a valid email and password");
+  }
 });
 
 app.listen(PORT, () => {
