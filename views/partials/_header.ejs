@@ -21,16 +21,16 @@
       </div>
 
       <% if (userId) { %>
-        <div style=" display: flex;">
-        <p style="margin-right: 10px;"> Logged in as : <%= users[userId]?.email %> </p>
+        <div style=" display: flex; gap: 20px; text-align: center;">
+        <p> <span style="color:blue;">Logged in as :</span> <strong><%= users[userId]?.email %></strong></p>
       <form method="POST" action="/logout">
         <button type="submit" class="btn btn-primary">Logout</button>
       </form>
     </div>
       <% } else  { %>
         <div style="width: 250px; display: flex; justify-content: space-evenly;">
-      <a href="/register"> Register</a>
-      <a href="/login"> Login</a>
+      <a style="background-color: #fff; padding: 5px 10px; border-radius: 5px;" href="/register"> Register</a>
+      <a style="background-color: #fff; padding: 5px 10px; border-radius: 5px;" href="/login"> Login</a>
     </div>
       <% } %>
     </div>

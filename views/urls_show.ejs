@@ -20,9 +20,10 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
+        <h5><strong> Please note :</strong></h5>
         <p>
-          Please note that editing a url will reset the visitor count to : 0 and
-          change the date that it was created.
+          editing a url will reset the visit count and change the date that it
+          was created.
         </p>
       </div>
       <form method="POST" action="/urls/<%= id %>/update?_method=PUT">
@@ -32,7 +33,11 @@
           id="updated"
           placeholder="<%= longURL %>"
         />
-        <button style="border: none; padding: 5px 10px" type="submit">
+        <button
+          class="btn btn-primary"
+          style="border: none; padding: 5px 10px"
+          type="submit"
+        >
           Edit
         </button>
       </form>
