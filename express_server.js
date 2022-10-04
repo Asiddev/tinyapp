@@ -1,12 +1,25 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
+const cookieSession = require("cookie-session");
 const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: [
+      /* secret keys */
+      "secret",
+    ],
+
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  })
+);
 
 const users = {};
 
@@ -87,7 +100,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   console.log(userId);
 
   if (!userId) {
@@ -101,7 +115,8 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   if (userId) {
     const templateInfo = { users, userId };
     res.render("urls_new", templateInfo);
@@ -111,7 +126,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
 
   if (!userId) {
     res.redirect("/login");
@@ -130,7 +145,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let { id } = req.params;
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
 
   if (!userId) {
     res.send(`<h1>Please log in first</h1>`);
@@ -150,7 +165,8 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   if (urlDatabase[id].userID !== userId) {
     res.send("You can only delete you own urls");
   }
@@ -161,7 +177,8 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id/update", (req, res) => {
   const id = req.params.id;
   const newData = req.body.new_data;
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   if (urlDatabase[id].userID !== userId) {
     res.send("You can only edit you own urls");
   }
@@ -175,7 +192,8 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   if (!userId) {
     res.send(`<h1>Please log in</h1>`);
   }
@@ -194,7 +212,8 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   if (userId) {
     res.redirect("/urls/");
   }
@@ -219,7 +238,9 @@ app.post("/login", (req, res) => {
   if (user) {
     //Is his password the same?
     if (bcrypt.compareSync(req.body.password, user.hashedPassword)) {
-      res.cookie("user_id", user.id);
+      // res.cookie("user_id", user.id);
+      // eslint-disable-next-line camelcase
+      req.session.user_id = user.id;
       res.redirect("/urls/");
     } else {
       res.statusCode = 403;
@@ -234,12 +255,14 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   //clearCookie but would be better if we can delete the entire cookie not just value
-  res.clearCookie("user_id");
+  // res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login/");
 });
 
 app.get("/register", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
+
   if (userId) {
     res.redirect("/urls/");
   }
@@ -251,7 +274,7 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let userId = req.cookies["user_id"];
+  let userId = req.session.user_id;
 
   //check password and email exist
   if (req.body.email && req.body.password) {
@@ -266,7 +289,9 @@ app.post("/register", (req, res) => {
     let id = generateRandomString();
     let email = req.body.email;
     let hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    res.cookie("user_id", id);
+    // res.cookie("user_id", id);
+    // eslint-disable-next-line camelcase
+    req.session.user_id = id;
     users[id] = {
       id,
       email,
