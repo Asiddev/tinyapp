@@ -2,6 +2,11 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
+const {
+  getUserByEmail,
+  generateRandomString,
+  urlsForUser,
+} = require("./helpers");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -38,62 +43,7 @@ const urlDatabase = {
   },
 };
 
-const getUserByEmail = (email, users) => {
-  for (let user in users) {
-    if (users[user]["email"] === email) {
-      return users[user];
-    }
-  }
-  return null;
-};
-
-const urlsForUser = (id) => {
-  let userUrls = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userUrls[url] = urlDatabase[url].longURL;
-    }
-  }
-  return userUrls;
-};
-
 // eslint-disable-next-line func-style
-function generateRandomString() {
-  let alphabet = [
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-    "k",
-    "l",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "u",
-    "v",
-    "w",
-    "x",
-    "y",
-    "z",
-  ];
-  let string = "";
-  for (let i = 0; i < 6; i++) {
-    let random = Math.floor(Math.random() * 26);
-    string += alphabet[random];
-  }
-  return string;
-}
 
 app.get("/", (req, res) => {
   res.redirect("/register");
@@ -110,7 +60,11 @@ app.get("/urls", (req, res) => {
   let userUrls = {};
   console.log(userUrls);
 
-  const templateInfo = { urls: urlsForUser(userId), users, userId };
+  const templateInfo = {
+    urls: urlsForUser(userId, urlDatabase),
+    users,
+    userId,
+  };
   res.render("urls_index", templateInfo);
 });
 
