@@ -66,6 +66,7 @@ app.get("/", (req, res) => {
 });
 app.get("/urls", (req, res) => {
   let userId = req.cookies["user_id"];
+
   // let user = users[userId];
   // console.log(user)
 
@@ -75,11 +76,21 @@ app.get("/urls", (req, res) => {
 });
 app.get("/urls/new", (req, res) => {
   let userId = req.cookies["user_id"];
-  const templateInfo = { users, userId };
-  res.render("urls_new", templateInfo);
+  if (userId) {
+    const templateInfo = { users, userId };
+    res.render("urls_new", templateInfo);
+  } else {
+    res.send(`<h1>Sorry you need to be logged in to use this feature</h1>`);
+  }
 });
 
 app.post("/urls", (req, res) => {
+  let userId = req.cookies["user_id"];
+
+  if (!userId) {
+    res.redirect("/login");
+  }
+
   let randomString = generateRandomString();
 
   console.log(req.body); // Log the POST request body to the console
@@ -116,7 +127,12 @@ app.post("/urls/:id/update", (req, res) => {
   }
 });
 app.get("/u/:id", (req, res) => {
-  if (urlDatabase[req.params.id]) {
+  let id = req.params.id;
+  if (!urlDatabase[id]) {
+    res.send(`<h1>No shortned URL with that Id</h1>`);
+  }
+
+  if (urlDatabase[id]) {
     res.statusCode = 300;
     res.redirect(`${urlDatabase[req.params.id]}`);
   } else {
@@ -126,14 +142,16 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  console.log(req.body);
   let userId = req.cookies["user_id"];
+  if (userId) {
+    res.redirect("/urls/");
+  }
+
   let templateInfo = {
     users,
     userId,
   };
 
-  // res.redirect("/urls/");
   res.render("login_index", templateInfo);
 });
 
@@ -169,6 +187,9 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   let userId = req.cookies["user_id"];
+  if (userId) {
+    res.redirect("/urls/");
+  }
   let templateInfo = {
     users,
     userId,
@@ -177,6 +198,8 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  let userId = req.cookies["user_id"];
+
   //check password and email exist
   if (req.body.email && req.body.password) {
     console.log("okay email and password exist");
