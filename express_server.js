@@ -8,6 +8,8 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const users = {};
+
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -50,17 +52,21 @@ function generateRandomString() {
   return string;
 }
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello!");
+// });
 app.get("/urls", (req, res) => {
-  let username = req.cookies["username"];
-  const templateInfo = { urls: urlDatabase, username };
+  let userId = req.cookies["user_id"];
+  // let user = users[userId];
+  // console.log(user)
+
+  // console.log("testing testing", users[userId]);
+  const templateInfo = { urls: urlDatabase, users, userId };
   res.render("urls_index", templateInfo);
 });
 app.get("/urls/new", (req, res) => {
-  let username = req.cookies["username"];
-  const templateInfo = { username };
+  let userId = req.cookies["user_id"];
+  const templateInfo = { users, userId };
   res.render("urls_new", templateInfo);
 });
 
@@ -75,19 +81,18 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let { id } = req.params;
-  let username = req.cookies["username"];
+  let userId = req.cookies["user_id"];
   let templateInfo = {
     id: id,
     longURL: urlDatabase[id],
-    username,
+    users,
+    userId,
   };
   res.render("urls_show", templateInfo);
 });
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  // console.log(id);
   delete urlDatabase[id];
-  // console.log(urlDatabase);
   res.redirect("/urls/");
 });
 app.post("/urls/:id/update", (req, res) => {
@@ -112,25 +117,37 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  // res.cookie("username", req.body.username);
   res.redirect("/urls/");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls/");
+  res.clearCookie("user_id");
+  res.redirect("/register/");
 });
 app.get("/register", (req, res) => {
-  let username = req.cookies["username"];
+  let userId = req.cookies["user_id"];
   let templateInfo = {
-    username,
+    users,
+    userId,
   };
   res.render("register_index", templateInfo);
 });
 
 app.post("/register", (req, res) => {
+  let id = generateRandomString();
   console.log(req.body);
-  res.end("posted at /register");
+  let email = req.body.email;
+  let password = req.body.password;
+  res.cookie("user_id", id);
+  users[id] = {
+    id,
+    email,
+    password,
+  };
+
+  res.redirect("/urls/");
+  console.log(users);
 });
 
 app.listen(PORT, () => {
