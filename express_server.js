@@ -85,6 +85,7 @@ function generateRandomString() {
 app.get("/", (req, res) => {
   res.redirect("/register");
 });
+
 app.get("/urls", (req, res) => {
   let userId = req.cookies["user_id"];
   console.log(userId);
@@ -93,20 +94,12 @@ app.get("/urls", (req, res) => {
     res.send(`<h1> You must go register or login before going here</h1>`);
   }
   let userUrls = {};
-  // for (let url in urlDatabase) {
-  //   if (urlDatabase[url].userID === userId) {
-  //     userUrls[url] = urlDatabase[url].longURL;
-  //   }
-  // }
   console.log(userUrls);
 
-  // let user = users[userId];
-  // console.log(user)
-
-  // console.log("testing testing", users[userId]);
   const templateInfo = { urls: urlsForUser(userId), users, userId };
   res.render("urls_index", templateInfo);
 });
+
 app.get("/urls/new", (req, res) => {
   let userId = req.cookies["user_id"];
   if (userId) {
@@ -154,6 +147,7 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateInfo);
 });
+
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   let userId = req.cookies["user_id"];
@@ -163,6 +157,7 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[id];
   res.redirect("/urls/");
 });
+
 app.post("/urls/:id/update", (req, res) => {
   const id = req.params.id;
   const newData = req.body.new_data;
@@ -178,6 +173,7 @@ app.post("/urls/:id/update", (req, res) => {
     res.send("Id not found");
   }
 });
+
 app.get("/u/:id", (req, res) => {
   let userId = req.cookies["user_id"];
   if (!userId) {
