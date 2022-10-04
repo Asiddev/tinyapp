@@ -10,9 +10,19 @@ app.use(cookieParser());
 
 const users = {};
 
+// const urlDatabase = {
+//   b2xVn2: "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com",
+// };
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const getUserByEmail = (email, users) => {
@@ -24,6 +34,17 @@ const getUserByEmail = (email, users) => {
   return null;
 };
 
+const urlsForUser = (id) => {
+  let userUrls = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userUrls[url] = urlDatabase[url].longURL;
+    }
+  }
+  return userUrls;
+};
+
+// eslint-disable-next-line func-style
 function generateRandomString() {
   let alphabet = [
     "a",
@@ -62,16 +83,28 @@ function generateRandomString() {
 }
 
 app.get("/", (req, res) => {
-  res.redirect("/login");
+  res.redirect("/register");
 });
 app.get("/urls", (req, res) => {
   let userId = req.cookies["user_id"];
+  console.log(userId);
+
+  if (!userId) {
+    res.send(`<h1> You must go register or login before going here</h1>`);
+  }
+  let userUrls = {};
+  // for (let url in urlDatabase) {
+  //   if (urlDatabase[url].userID === userId) {
+  //     userUrls[url] = urlDatabase[url].longURL;
+  //   }
+  // }
+  console.log(userUrls);
 
   // let user = users[userId];
   // console.log(user)
 
   // console.log("testing testing", users[userId]);
-  const templateInfo = { urls: urlDatabase, users, userId };
+  const templateInfo = { urls: urlsForUser(userId), users, userId };
   res.render("urls_index", templateInfo);
 });
 app.get("/urls/new", (req, res) => {
@@ -91,20 +124,31 @@ app.post("/urls", (req, res) => {
     res.redirect("/login");
   }
 
-  let randomString = generateRandomString();
+  let id = generateRandomString();
 
   console.log(req.body); // Log the POST request body to the console
-  urlDatabase[randomString] = "https://" + req.body.longURL;
+  urlDatabase[id] = {
+    longURL: "https://" + req.body.longURL,
+    userID: userId,
+  };
   res.statusCode = 300;
-  res.redirect(`/urls/${randomString}`);
+  res.redirect(`/urls/${id}`);
 });
 
 app.get("/urls/:id", (req, res) => {
   let { id } = req.params;
   let userId = req.cookies["user_id"];
+
+  if (!userId) {
+    res.send(`<h1>Please log in first</h1>`);
+  }
+  if (urlDatabase[id].userID !== userId) {
+    res.send(`<h1>You do not own a url with this id</h1>`);
+  }
+
   let templateInfo = {
     id: id,
-    longURL: urlDatabase[id],
+    longURL: urlDatabase[id].longURL,
     users,
     userId,
   };
@@ -112,14 +156,22 @@ app.get("/urls/:id", (req, res) => {
 });
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
+  let userId = req.cookies["user_id"];
+  if (urlDatabase[id].userID !== userId) {
+    res.send("You can only delete you own urls");
+  }
   delete urlDatabase[id];
   res.redirect("/urls/");
 });
 app.post("/urls/:id/update", (req, res) => {
   const id = req.params.id;
   const newData = req.body.new_data;
+  let userId = req.cookies["user_id"];
+  if (urlDatabase[id].userID !== userId) {
+    res.send("You can only edit you own urls");
+  }
   if (id) {
-    urlDatabase[id] = "http://" + newData;
+    urlDatabase[id]["longURL"] = "http://" + newData;
     res.redirect("/urls/");
   } else {
     res.statusCode = 404;
@@ -127,14 +179,18 @@ app.post("/urls/:id/update", (req, res) => {
   }
 });
 app.get("/u/:id", (req, res) => {
+  let userId = req.cookies["user_id"];
+  if (!userId) {
+    res.send(`<h1>Please log in</h1>`);
+  }
   let id = req.params.id;
-  if (!urlDatabase[id]) {
+  if (urlDatabase[id].userID !== userId) {
     res.send(`<h1>No shortned URL with that Id</h1>`);
   }
 
   if (urlDatabase[id]) {
     res.statusCode = 300;
-    res.redirect(`${urlDatabase[req.params.id]}`);
+    res.redirect(`${urlDatabase[id].longURL}`);
   } else {
     res.status(404);
     res.send("404 page not found");
