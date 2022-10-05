@@ -25,6 +25,8 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   })
 );
+
+//Data
 const users = {};
 let visitors = [];
 const urlDatabase = {
@@ -40,24 +42,20 @@ const urlDatabase = {
 
 // eslint-disable-next-line func-style
 
-//get homepage to go straight to login
+//Get homepage to go straight to login
 app.get("/", (req, res) => {
-  res.redirect("/login");
+  res.status(300).redirect("/login");
 });
 
 //get urls for specific user
 app.get("/urls", (req, res) => {
   let userId = req.session.user_id;
 
-  // console.log(userId);
-
   if (!userId) {
     return res
       .status(401)
       .send(`<h1> You must go register or login before going here</h1>`);
   }
-  let userUrls = {};
-  // console.log(userUrls);
 
   const templateInfo = {
     urls: urlsForUser(userId, urlDatabase),
@@ -90,8 +88,6 @@ app.post("/urls", (req, res) => {
   }
 
   let id = generateRandomString();
-
-  // console.log(req.body); // Log the POST request body to the console
   urlDatabase[id] = {
     longURL: "https://" + req.body.longURL,
     userID: userId,
@@ -112,7 +108,6 @@ app.get("/urls/:id", (req, res) => {
   if (urlDatabase[id].userID !== userId) {
     return res.status(401).send(`<h1>You do not own a url with this id</h1>`);
   }
-  // console.log(visitors);
   let templateInfo = {
     id: id,
     longURL: urlDatabase[id].longURL,
@@ -120,7 +115,6 @@ app.get("/urls/:id", (req, res) => {
     userId,
     visitors,
     urlDatabaseCount: urlDatabase[id].count,
-    // timeStampVisitors,
   };
   res.status(200).render("urls_show", templateInfo);
 });
