@@ -74,7 +74,7 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_new", templateInfo);
   } else {
     // res.send(`<h1>Sorry you need to be logged in to use this feature</h1>`);
-    res.redirect("/login");
+    return res.redirect("/login");
   }
 });
 
@@ -94,8 +94,7 @@ app.post("/urls", (req, res) => {
     count: 0,
     date: new Date().toLocaleString(),
   };
-  res.statusCode = 300;
-  res.redirect(`/urls/${id}`);
+  return res.status(300).redirect(`/urls/${id}`);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -140,7 +139,7 @@ app.put("/urls/:id/update", (req, res) => {
   let userId = req.session.user_id;
 
   if (urlDatabase[id].userID !== userId) {
-    res.send("You can only edit you own urls");
+    return res.send("You can only edit you own urls");
   }
   if (id) {
     //stretch
@@ -149,10 +148,9 @@ app.put("/urls/:id/update", (req, res) => {
     urlDatabase[id]["date"] = new Date().toLocaleString();
     visitors = [];
 
-    res.redirect("/urls/");
+    return res.redirect("/urls/");
   } else {
-    res.statusCode = 404;
-    res.send("Id not found");
+    return res.status(404).send("Id not found");
   }
 });
 
@@ -174,12 +172,11 @@ app.get("/u/:id", (req, res) => {
 
   if (urlDatabase[id]) {
     urlDatabase[id].count++;
-    res.statusCode = 300;
   } else {
     res.status(404);
     res.send("404 page not found");
   }
-  res.redirect(`${urlDatabase[id].longURL}`);
+  res.status(300).redirect(`${urlDatabase[id].longURL}`);
 });
 
 app.get("/login", (req, res) => {
@@ -213,13 +210,11 @@ app.post("/login", (req, res) => {
       req.session.user_id = currentUser.id;
       return res.redirect("/urls/");
     } else {
-      res.statusCode = 403;
-      res.send(`<h1>Wrong Password</h1>`);
+      return res.status(403).send(`<h1>Wrong Password</h1>`);
     }
     //no
   } else {
-    res.statusCode = 403;
-    res.send(`<h1>No user with that email</h1>`);
+    return res.status(403).send(`<h1>No user with that email</h1>`);
   }
 });
 
@@ -248,8 +243,7 @@ app.post("/register", (req, res) => {
   if (req.body.email && req.body.password) {
     //check if user with email exists
     if (getUserByEmail(req.body.email, users)) {
-      res.statusCode = 400;
-      res.send(`<h1>Email already in use</h1>`);
+      return res.status(400).send(`<h1>Email already in use</h1>`);
     }
     //generate new user
     let id = generateRandomString();
@@ -263,11 +257,12 @@ app.post("/register", (req, res) => {
       email,
       hashedPassword,
     };
-    res.redirect("/urls/");
   } else {
-    res.statusCode = 400;
-    res.send(`<h1>Please enter valid email and password for registration</h1>`);
+    return res
+      .status(400)
+      .send(`<h1>Please enter valid email and password for registration</h1>`);
   }
+  return res.redirect("/urls/");
 });
 
 app.listen(PORT, () => {
