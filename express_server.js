@@ -40,14 +40,16 @@ const urlDatabase = {
 
 // eslint-disable-next-line func-style
 
+//get homepage to go straight to login
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
 
+//get urls for specific user
 app.get("/urls", (req, res) => {
   let userId = req.session.user_id;
 
-  console.log(userId);
+  // console.log(userId);
 
   if (!userId) {
     return res
@@ -55,7 +57,7 @@ app.get("/urls", (req, res) => {
       .send(`<h1> You must go register or login before going here</h1>`);
   }
   let userUrls = {};
-  console.log(userUrls);
+  // console.log(userUrls);
 
   const templateInfo = {
     urls: urlsForUser(userId, urlDatabase),
@@ -66,6 +68,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateInfo);
 });
 
+//create new url
 app.get("/urls/new", (req, res) => {
   let userId = req.session.user_id;
 
@@ -78,6 +81,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+//post create new url
 app.post("/urls", (req, res) => {
   let userId = req.session.user_id;
 
@@ -87,7 +91,7 @@ app.post("/urls", (req, res) => {
 
   let id = generateRandomString();
 
-  console.log(req.body); // Log the POST request body to the console
+  // console.log(req.body); // Log the POST request body to the console
   urlDatabase[id] = {
     longURL: "https://" + req.body.longURL,
     userID: userId,
@@ -97,6 +101,7 @@ app.post("/urls", (req, res) => {
   return res.status(300).redirect(`/urls/${id}`);
 });
 
+//get specfic url by id
 app.get("/urls/:id", (req, res) => {
   let { id } = req.params;
   let userId = req.session.user_id;
@@ -107,7 +112,7 @@ app.get("/urls/:id", (req, res) => {
   if (urlDatabase[id].userID !== userId) {
     return res.status(401).send(`<h1>You do not own a url with this id</h1>`);
   }
-  console.log(visitors);
+  // console.log(visitors);
   let templateInfo = {
     id: id,
     longURL: urlDatabase[id].longURL,
@@ -117,21 +122,23 @@ app.get("/urls/:id", (req, res) => {
     urlDatabaseCount: urlDatabase[id].count,
     // timeStampVisitors,
   };
-  res.render("urls_show", templateInfo);
+  res.status(200).render("urls_show", templateInfo);
 });
 
+//delete specfic url from users url list
 app.delete("/urls/:id/delete", (req, res) => {
   //if breaks.. was a post and form was ..... action="/urls/<%= id %>/delete"
   const id = req.params.id;
   let userId = req.session.user_id;
 
   if (urlDatabase[id].userID !== userId) {
-    res.send("You can only delete you own urls");
+    res.status(400).send("You can only delete you own urls");
   }
   delete urlDatabase[id];
-  res.redirect("/urls/");
+  res.status(200).redirect("/urls/");
 });
 
+//update specfic url from users url list
 app.put("/urls/:id/update", (req, res) => {
   //if breaks... was a post and a form was action="/urls/<%= id %>/update"
   const id = req.params.id;
@@ -139,7 +146,7 @@ app.put("/urls/:id/update", (req, res) => {
   let userId = req.session.user_id;
 
   if (urlDatabase[id].userID !== userId) {
-    return res.send("You can only edit you own urls");
+    return res.satus(401).send("You can only edit you own urls");
   }
   if (id) {
     //stretch
@@ -148,18 +155,19 @@ app.put("/urls/:id/update", (req, res) => {
     urlDatabase[id]["date"] = new Date().toLocaleString();
     visitors = [];
 
-    return res.redirect("/urls/");
+    return res.status(300).redirect("/urls/");
   } else {
     return res.status(404).send("Id not found");
   }
 });
 
+//go to a specfic longURL from id of url
 app.get("/u/:id", (req, res) => {
   let userId = req.session.user_id;
   let id = req.params.id;
 
   if (!userId) {
-    res.send(`<h1>Please log in</h1>`);
+    res.status(401).send(`<h1>Please log in</h1>`);
   }
 
   if (urlDatabase[id].userID !== userId) {
@@ -179,6 +187,7 @@ app.get("/u/:id", (req, res) => {
   res.status(300).redirect(`${urlDatabase[id].longURL}`);
 });
 
+//getting login form html
 app.get("/login", (req, res) => {
   let userId = req.session.user_id;
 
@@ -194,6 +203,7 @@ app.get("/login", (req, res) => {
   res.render("login_index", templateInfo);
 });
 
+//sending information to check for user
 app.post("/login", (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
@@ -208,7 +218,7 @@ app.post("/login", (req, res) => {
     if (bcrypt.compareSync(password, currentUser.hashedPassword)) {
       // eslint-disable-next-line camelcase
       req.session.user_id = currentUser.id;
-      return res.redirect("/urls/");
+      return res.status(300).redirect("/urls/");
     } else {
       return res.status(403).send(`<h1>Wrong Password</h1>`);
     }
@@ -218,24 +228,27 @@ app.post("/login", (req, res) => {
   }
 });
 
+//delete cookie so we dont know next use
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/login/");
+  res.status(300).redirect("/login/");
 });
 
+//register form html
 app.get("/register", (req, res) => {
   let userId = req.session.user_id;
 
   if (userId) {
-    res.redirect("/urls/");
+    res.status(300).redirect("/urls/");
   }
   let templateInfo = {
     users,
     userId,
   };
-  res.render("register_index", templateInfo);
+  res.status(200).render("register_index", templateInfo);
 });
 
+//getting user info from register form
 app.post("/register", (req, res) => {
   let userId = req.session.user_id;
 
