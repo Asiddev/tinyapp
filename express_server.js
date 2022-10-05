@@ -50,9 +50,9 @@ app.get("/urls", (req, res) => {
   console.log(userId);
 
   if (!userId) {
-    return res.send(
-      `<h1> You must go register or login before going here</h1>`
-    );
+    return res
+      .status(401)
+      .send(`<h1> You must go register or login before going here</h1>`);
   }
   let userUrls = {};
   console.log(userUrls);
