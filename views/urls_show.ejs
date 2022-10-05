@@ -38,6 +38,11 @@
           <strong>RESET ALL</strong> information about that
           <strong>specific *( <%= id %> )* </strong> shortned URL
         </p>
+        <p style="font-size: 13px">
+          <i>
+            Clicking the edit button means you agree with the statement above</i
+          >
+        </p>
         <form method="POST" action="/urls/<%= id %>/update?_method=PUT">
           <input
             type="text"
