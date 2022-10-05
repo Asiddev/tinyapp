@@ -102,10 +102,10 @@ app.get("/urls/:id", (req, res) => {
   let userId = req.session.user_id;
 
   if (!userId) {
-    res.send(`<h1>Please log in first</h1>`);
+    return res.status(401).send(`<h1>Please log in first</h1>`);
   }
   if (urlDatabase[id].userID !== userId) {
-    res.send(`<h1>You do not own a url with this id</h1>`);
+    return res.status(401).send(`<h1>You do not own a url with this id</h1>`);
   }
   console.log(visitors);
   let templateInfo = {
