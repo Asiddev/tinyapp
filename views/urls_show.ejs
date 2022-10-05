@@ -11,37 +11,49 @@
     <title>URL - TinyApp Example</title>
   </head>
 
-  <body style="background-color: lightblue">
+  <body>
     <%- include('partials/_header') %>
-    <div class="card text-center">
+    <div
+      style="background: linear-gradient(#64d0e6, #325cd2); height: 100vh"
+      class="card text-center"
+    >
       <div class="card-header"></div>
-      <div class="card-body">
+      <div style="background-color: lightblue" class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
+        <p class="card-text">
+          <strong>Unique Visitors:</strong> <%= visitors.length %>
+        </p>
+        <p class="card-text">
+          <strong>Unique Visitor ID's :</strong> <%= [visitors] %>
+        </p>
+        <p class="card-text">
+          <strong> Total Clicks:</strong> <%= urlDatabaseCount %>
+        </p>
         <h5><strong> Please note :</strong></h5>
         <p>
-          editing a url will reset the visit count and change the date that it
-          was created.
+          editing a shortned URL link will
+          <strong>RESET ALL</strong> information about that
+          <strong>specific *( <%= id %> )* </strong> shortned URL
         </p>
+        <form method="POST" action="/urls/<%= id %>/update?_method=PUT">
+          <input
+            type="text"
+            name="new_data"
+            id="updated"
+            placeholder="<%= longURL %>"
+          />
+          <button
+            class="btn btn-primary"
+            style="border: none; padding: 5px 10px"
+            type="submit"
+          >
+            Edit
+          </button>
+        </form>
       </div>
-      <form method="POST" action="/urls/<%= id %>/update?_method=PUT">
-        <input
-          type="text"
-          name="new_data"
-          id="updated"
-          placeholder="<%= longURL %>"
-        />
-        <button
-          class="btn btn-primary"
-          style="border: none; padding: 5px 10px"
-          type="submit"
-        >
-          Edit
-        </button>
-      </form>
-      <div class="card-footer text-muted"></div>
     </div>
     <!-- Bootstrap JS -->
     <script

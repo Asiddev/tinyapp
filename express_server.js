@@ -25,8 +25,8 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   })
 );
-
 const users = {};
+let visitors = [];
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -108,12 +108,15 @@ app.get("/urls/:id", (req, res) => {
   if (urlDatabase[id].userID !== userId) {
     res.send(`<h1>You do not own a url with this id</h1>`);
   }
-
+  console.log(visitors);
   let templateInfo = {
     id: id,
     longURL: urlDatabase[id].longURL,
     users,
     userId,
+    visitors,
+    urlDatabaseCount: urlDatabase[id].count,
+    // timeStampVisitors,
   };
   res.render("urls_show", templateInfo);
 });
@@ -144,6 +147,8 @@ app.put("/urls/:id/update", (req, res) => {
     urlDatabase[id]["longURL"] = "http://" + newData;
     urlDatabase[id]["count"] = 0;
     urlDatabase[id]["date"] = new Date().toLocaleString();
+    visitors = [];
+
     res.redirect("/urls/");
   } else {
     res.statusCode = 404;
@@ -154,30 +159,34 @@ app.put("/urls/:id/update", (req, res) => {
 app.get("/u/:id", (req, res) => {
   let userId = req.session.user_id;
   let id = req.params.id;
-  urlDatabase[id].count++;
 
   if (!userId) {
     res.send(`<h1>Please log in</h1>`);
   }
 
   if (urlDatabase[id].userID !== userId) {
-    res.send(`<h1>No shortned URL with that Id</h1>`);
+    let otherUser = userId;
+
+    if (!visitors.includes(otherUser)) {
+      visitors.push(otherUser);
+    }
   }
 
   if (urlDatabase[id]) {
+    urlDatabase[id].count++;
     res.statusCode = 300;
-    res.redirect(`${urlDatabase[id].longURL}`);
   } else {
     res.status(404);
     res.send("404 page not found");
   }
+  res.redirect(`${urlDatabase[id].longURL}`);
 });
 
 app.get("/login", (req, res) => {
   let userId = req.session.user_id;
 
   if (userId) {
-    res.redirect("/urls/");
+    return res.redirect("/urls/");
   }
 
   let templateInfo = {
@@ -202,7 +211,7 @@ app.post("/login", (req, res) => {
     if (bcrypt.compareSync(password, currentUser.hashedPassword)) {
       // eslint-disable-next-line camelcase
       req.session.user_id = currentUser.id;
-      res.redirect("/urls/");
+      return res.redirect("/urls/");
     } else {
       res.statusCode = 403;
       res.send(`<h1>Wrong Password</h1>`);
@@ -240,7 +249,7 @@ app.post("/register", (req, res) => {
     //check if user with email exists
     if (getUserByEmail(req.body.email, users)) {
       res.statusCode = 400;
-      res.end("Email already in use");
+      res.send(`<h1>Email already in use</h1>`);
     }
     //generate new user
     let id = generateRandomString();
@@ -257,7 +266,7 @@ app.post("/register", (req, res) => {
     res.redirect("/urls/");
   } else {
     res.statusCode = 400;
-    res.end("Please enter a valid email and password");
+    res.send(`<h1>Please enter valid email and password for registration</h1>`);
   }
 });
 

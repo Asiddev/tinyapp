@@ -16,20 +16,21 @@
     />
     <title>TinyApp</title>
   </head>
-  <body style="background-color: lightblue">
+  <body style="background: linear-gradient(#64d0e6, #325cd2)">
     <%- include('partials/_header') %>
 
     <div
       style="
-        height: 70vh;
+        height: 100vh;
         display: flex;
-        justify-content: center;
+        margin-top: 50px;
+        justify-content: start;
         flex-direction: column;
         align-items: center;
       "
     >
       <div class="title" style="margin-bottom: 50px">
-        <h1 class="navbar-brand">Welcome to the Registration Page</h1>
+        <h3>Welcome to the Register Page</h3>
       </div>
       <form method="POST" action="/register">
         <input type="email" name="email" placeholder="email here" />
