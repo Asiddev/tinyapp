@@ -204,13 +204,12 @@ app.post("/login", (req, res) => {
   //yes
   if (user) {
     //Is his password the same?
-    if (bcrypt.compareSync(password, currentUser.hashedPassword)) {
-      // eslint-disable-next-line camelcase
-      req.session.user_id = currentUser.id;
-      return res.status(300).redirect("/urls/");
-    } else {
+    if (!bcrypt.compareSync(password, currentUser.hashedPassword)) {
       return res.status(403).send(`<h1>Wrong Password</h1>`);
     }
+    // eslint-disable-next-line camelcase
+    req.session.user_id = currentUser.id;
+    return res.status(300).redirect("/urls/");
     //no
   } else {
     return res.status(403).send(`<h1>No user with that email</h1>`);
