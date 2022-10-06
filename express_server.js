@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cookieSession({
     name: "session",
-    keys: ["secret"], //not sure if this is correct?
+    keys: ["secret"],
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   })
 );
@@ -63,7 +63,7 @@ app.get("/urls", (req, res) => {
     userId,
     urlDatabase,
   };
-  res.render("urls_index", templateInfo);
+  res.status(200).render("urls_index", templateInfo);
 });
 
 //create new url
@@ -72,10 +72,10 @@ app.get("/urls/new", (req, res) => {
 
   if (userId) {
     const templateInfo = { users, userId };
-    res.render("urls_new", templateInfo);
+    res.status(200).render("urls_new", templateInfo);
   } else {
     // res.send(`<h1>Sorry you need to be logged in to use this feature</h1>`);
-    return res.redirect("/login");
+    return res.status(300).redirect("/login");
   }
 });
 
@@ -126,7 +126,7 @@ app.delete("/urls/:id/delete", (req, res) => {
   let userId = req.session.user_id;
 
   if (urlDatabase[id].userID !== userId) {
-    res.status(400).send("You can only delete you own urls");
+    return res.status(400).send("You can only delete you own urls");
   }
   delete urlDatabase[id];
   res.status(200).redirect("/urls/");
@@ -175,8 +175,7 @@ app.get("/u/:id", (req, res) => {
   if (urlDatabase[id]) {
     urlDatabase[id].count++;
   } else {
-    res.status(404);
-    res.send("404 page not found");
+    res.status(404).send(`<h1>404 page not found</h1>`);
   }
   res.status(300).redirect(`${urlDatabase[id].longURL}`);
 });
@@ -186,7 +185,7 @@ app.get("/login", (req, res) => {
   let userId = req.session.user_id;
 
   if (userId) {
-    return res.redirect("/urls/");
+    return res.status(300).redirect("/urls/");
   }
 
   let templateInfo = {
@@ -269,7 +268,7 @@ app.post("/register", (req, res) => {
       .status(400)
       .send(`<h1>Please enter valid email and password for registration</h1>`);
   }
-  return res.redirect("/urls/");
+  return res.status(300).redirect("/urls/");
 });
 
 app.listen(PORT, () => {
