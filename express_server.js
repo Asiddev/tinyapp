@@ -42,7 +42,7 @@ const urlDatabase = {
 
 //Get homepage to go straight to login
 app.get("/", (req, res) => {
-  res.status(300).redirect("/login");
+  return res.status(300).redirect("/login");
 });
 
 //get urls for specific user
@@ -61,7 +61,7 @@ app.get("/urls", (req, res) => {
     userId,
     urlDatabase,
   };
-  res.status(200).render("urls_index", templateInfo);
+  return res.status(200).render("urls_index", templateInfo);
 });
 
 //create new url
@@ -82,7 +82,7 @@ app.post("/urls", (req, res) => {
   let userId = req.session.user_id;
 
   if (!userId) {
-    res.redirect("/login");
+    return res.status(300).redirect("/login");
   }
 
   let id = generateRandomString();
@@ -114,7 +114,7 @@ app.get("/urls/:id", (req, res) => {
     visitors,
     urlDatabaseCount: urlDatabase[id].count,
   };
-  res.status(200).render("urls_show", templateInfo);
+  return res.status(200).render("urls_show", templateInfo);
 });
 
 //delete specfic url from users url list
@@ -157,7 +157,7 @@ app.get("/u/:id", (req, res) => {
   let id = req.params.id;
 
   if (!userId) {
-    res.status(401).send(`<h1>Please log in</h1>`);
+    return res.status(401).send(`<h1>Please log in</h1>`);
   }
 
   if (urlDatabase[id].userID !== userId) {
@@ -171,9 +171,9 @@ app.get("/u/:id", (req, res) => {
   if (urlDatabase[id]) {
     urlDatabase[id].count++;
   } else {
-    res.status(404).send(`<h1>404 page not found</h1>`);
+    return res.status(404).send(`<h1>404 page not found</h1>`);
   }
-  res.status(300).redirect(`${urlDatabase[id].longURL}`);
+  return res.status(300).redirect(`${urlDatabase[id].longURL}`);
 });
 
 //getting login form html
@@ -189,7 +189,7 @@ app.get("/login", (req, res) => {
     userId,
   };
 
-  res.render("login_index", templateInfo);
+  return res.status(200).render("login_index", templateInfo);
 });
 
 //sending information to check for user
