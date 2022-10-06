@@ -250,7 +250,8 @@ app.post("/register", (req, res) => {
     //generate new user
     let id = generateRandomString();
     let email = req.body.email;
-    let hashedPassword = bcrypt.hashSync(req.body.password, 10);
+    const salt = bcrypt.genSaltSync(10);
+    let hashedPassword = bcrypt.hashSync(req.body.password, salt);
     // res.cookie("user_id", id);
     // eslint-disable-next-line camelcase
     req.session.user_id = id;
