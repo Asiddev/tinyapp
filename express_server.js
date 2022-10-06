@@ -40,8 +40,6 @@ const urlDatabase = {
   },
 };
 
-// eslint-disable-next-line func-style
-
 //Get homepage to go straight to login
 app.get("/", (req, res) => {
   res.status(300).redirect("/login");
