@@ -32,7 +32,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
    ![Screenshot](/images/screenshot2.png)
 
 4. To create your first URL. Click the : Create new URL button which should prompt you to this screen
-   ![Screenshot](/imgages/screenshot3.png)
+   ![Screenshot](/images/screenshot3.png)
 
 5. Once you have chosen your desired URL. You will be prompted to a window with information about that specific URL. You can see how many total clicks came from your shortned URL and how many UNIQUE people have looked at your URL. If you wish to edit your destination URL you can edit it to whatever you like. Clicking on the short URL will send you to your destination.
 
