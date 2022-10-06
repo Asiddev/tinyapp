@@ -7,6 +7,7 @@ const {
   getUserByEmail,
   generateRandomString,
   urlsForUser,
+  checkLink,
 } = require("./helpers");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -85,6 +86,16 @@ app.post("/urls", (req, res) => {
     return res.status(300).redirect("/login");
   }
 
+  //if the user ignores placeholder.
+  //  We will make sure their link is still fine adding http or not.
+  //also tried to make this a helper function but did not work..
+  if (
+    req.body.longURL.split("//")[0] === "http:" ||
+    req.body.longURL.split("//")[0] === "https:"
+  ) {
+    req.body.longURL = req.body.longURL.split("//")[1];
+  }
+
   let id = generateRandomString();
   urlDatabase[id] = {
     longURL: "https://" + req.body.longURL,
@@ -132,14 +143,26 @@ app.delete("/urls/:id/delete", (req, res) => {
 //update specfic url from users url list
 app.put("/urls/:id/update", (req, res) => {
   const id = req.params.id;
-  const newData = req.body.new_data;
+  let newData = req.body.new_data;
   let userId = req.session.user_id;
 
   if (urlDatabase[id].userID !== userId) {
     return res.satus(401).send("You can only edit you own urls");
   }
+
+  //if the user ignores placeholder.
+  //  We will make sure their link is still fine adding http/https or not.
+  //also tried to make this a helper function but did not work..
+  if (
+    newData.split("//")[0] === "http:" ||
+    newData.split("//")[0] === "https:"
+  ) {
+    newData = newData.split("//")[1];
+  }
+
   if (id) {
     //stretch
+
     urlDatabase[id]["longURL"] = "http://" + newData;
     urlDatabase[id]["count"] = 0;
     urlDatabase[id]["date"] = new Date().toLocaleString();
