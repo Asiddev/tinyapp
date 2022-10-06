@@ -54,16 +54,6 @@ function generateRandomString() {
   return string;
 }
 
-// const urlsForUser = (id, urlDatabase) => {
-//   let userUrls = {};
-//   for (let url in urlDatabase) {
-//     if (urlDatabase[url].userID === id) {
-//       userUrls[url] = urlDatabase[url].longURL;
-//     }
-//   }
-//   return userUrls;
-// };
-
 module.exports = {
   getUserByEmail,
   generateRandomString,
