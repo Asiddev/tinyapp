@@ -219,7 +219,7 @@ app.post("/login", (req, res) => {
 //delete cookie so we dont know next use
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.status(300).redirect("/login/");
+  return res.status(300).redirect("/login/");
 });
 
 //register form html
@@ -227,13 +227,13 @@ app.get("/register", (req, res) => {
   let userId = req.session.user_id;
 
   if (userId) {
-    res.status(300).redirect("/urls/");
+    return res.status(300).redirect("/urls/");
   }
   let templateInfo = {
     users,
     userId,
   };
-  res.status(200).render("register_index", templateInfo);
+  return res.status(200).render("register_index", templateInfo);
 });
 
 //getting user info from register form
