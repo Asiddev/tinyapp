@@ -109,7 +109,7 @@ app.get("/urls/:id", (req, res) => {
     return res.status(401).send(`<h1>You do not own a url with this id</h1>`);
   }
   let templateInfo = {
-    id: id,
+    id,
     longURL: urlDatabase[id].longURL,
     users,
     userId,
@@ -121,7 +121,6 @@ app.get("/urls/:id", (req, res) => {
 
 //delete specfic url from users url list
 app.delete("/urls/:id/delete", (req, res) => {
-  //if breaks.. was a post and form was ..... action="/urls/<%= id %>/delete"
   const id = req.params.id;
   let userId = req.session.user_id;
 
@@ -134,7 +133,6 @@ app.delete("/urls/:id/delete", (req, res) => {
 
 //update specfic url from users url list
 app.put("/urls/:id/update", (req, res) => {
-  //if breaks... was a post and a form was action="/urls/<%= id %>/update"
   const id = req.params.id;
   const newData = req.body.new_data;
   let userId = req.session.user_id;
