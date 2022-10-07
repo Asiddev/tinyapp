@@ -7,7 +7,6 @@ const {
   getUserByEmail,
   generateRandomString,
   urlsForUser,
-  checkLink,
 } = require("./helpers");
 const app = express();
 const PORT = 8080; // default port 8080
